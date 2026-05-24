@@ -1,0 +1,55 @@
+# Prerequisites
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go build command, local binaries
+main
+api-server
+/cmd/api/main
+
+# Architecture specific extensions
+*.out
+
+# Node/Python specific items if any scrapers use them
+node_modules/
+__pycache__/
+
+# Docker local development files
+.docker/
+docker-compose.override.yml
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment configuration files (contains sensitive API keys)
+.env
+.env.local
+.env.*.local
+
+# OS generated files
+.DS_Store
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# Temporary downloaded videos / processing artifacts
+/tmp/
+/storage/downloads/
+*.mp4
+*.mp3
+*.webm
+*.mov
+*.ts
