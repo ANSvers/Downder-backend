@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: video_downloader_backend
+    ports:
+      - "8081:8080"
+    env_file:
+      - .env
+    volumes:
+      # Simulate persistent storage for downloaded videos
+      - ./tmp/downloads:/root/tmp/downloads
+    restart: unless-stopped
