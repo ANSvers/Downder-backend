@@ -3,7 +3,7 @@ downder-backend/ (Root)
 │   └── api/
 │       └── main.go        # Entry point: จุดเริ่มต้นเชื่อมต่อ DB/Config และสั่งรัน Server
 ├── config/
-│   └── config.go      # โหลด Environment Variables (.env) และ App Configuration
+│   └── config.go          # โหลด Environment Variables (.env) และ App Configuration
 ├── internal/
 │   ├── delivery/
 │   │   └── http/          # [Layer 1: Entry Point] รับ Request จากภายนอก (CORS, REST API)
@@ -24,7 +24,8 @@ downder-backend/ (Root)
 │       │   ├── facebook.go
 │       │   └── twitter.go
 │       └── storage/       # ตัวจัดการไฟล์วิดีโอชั่วคราวในดิสก์
-│           └── local.go   # สั่งลบไฟล์อัตโนมัติ (TTL) หรือล้างข้อมูลขยะ
+│           └── local.go   # จัดการเรื่องการเขียนไฟล์วิดีโอลงดิสก์อย่างปลอดภัย
+│           └── cleaner.go # ลบไฟล์วิดีโอที่ผู้ใช้โหลดเสร็จแล้วทิ้งไป (กันเซิร์ฟเวอร์ดิสก์เต็ม)
 ├── pkg/                   # [Shared Libraries] ฟังก์ชันส่วนกลางที่หยิบไปใช้ที่อื่นได้ (ไม่มี Business Logic)
 │   ├── ffmpeg/            # Low-level Exec Command สำหรับเรียกใช้ FFmpeg
 │   └── qrcode/            # ตัวเจนเนอเรต QR Code เป็นรูปภาพหรือ Base64
