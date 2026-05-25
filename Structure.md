@@ -10,7 +10,7 @@ downder-backend/ (Root)
 │   │       ├── middleware/# จัดการ Rate Limit, CORS, Logger
 │   │       ├── router.go  # จุดลงทะเบียนเส้นทางเดินของ API ทั้งหมด
 │   │       ├── health.go  # Handler ตรวจสอบสถานะเซิร์ฟเวอร์
-│   │       └── video.go   # Handler รับคิวงาน Fetch/Download และส่ง Response กลับหน้าบ้าน
+│   │       └── video_handler.go   # Handler รับคิวงาน Fetch/Download และส่ง Response กลับหน้าบ้าน
 │   ├── domain/            # [Layer 2: Core Domain] นิยามโครงสร้างข้อมูลและ Interface
 │   │   └── video.go       # Structs payload และ Interface ของ Service/Scraper
 │   │   └── errors.go      # ศูนย์รวม Error ของระบบ
