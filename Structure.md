@@ -7,14 +7,16 @@ downder-backend/ (Root)
 ├── internal/
 │   ├── delivery/
 │   │   └── http/          # [Layer 1: Entry Point] รับ Request จากภายนอก (CORS, REST API)
+│   │       ├── middleware/# จัดการ Rate Limit, CORS, Logger
 │   │       ├── router.go  # จุดลงทะเบียนเส้นทางเดินของ API ทั้งหมด
 │   │       ├── health.go  # Handler ตรวจสอบสถานะเซิร์ฟเวอร์
 │   │       └── video.go   # Handler รับคิวงาน Fetch/Download และส่ง Response กลับหน้าบ้าน
 │   ├── domain/            # [Layer 2: Core Domain] นิยามโครงสร้างข้อมูลและ Interface
 │   │   └── video.go       # Structs payload และ Interface ของ Service/Scraper
+│   │   └── errors.go      # ศูนย์รวม Error ของระบบ
 │   ├── service/           # [Layer 3: Business Logic] สมองหลักของระบบ (ห้ามยุ่งกับ HTTP)
 │   │   ├── processor.go   # สั่งตัดวิดีโอ, แยก MP3, แปลงไฟล์ผ่าน FFmpeg Wrapper
-│   │   └── video.go       # คุม Logic ว่าถ้าลิงก์นี้มา ต้องไปหา Scraper ตัวไหน แล้วส่งไปประมวลผลต่อ
+│   │   └── video.go       # ไฟล์นี้จะรับลิงก์เข้ามา แล้วตรวจสอบว่าเป็นลิงก์ของเว็บไหน เพื่อส่งให้ Scraper ทำงานได้อย่างถูกต้อง
 │   └── platform/          # [Layer 4: Infrastructure/External App] ตัวเชื่อมต่อภายนอก
 │       ├── scraper/       # บอทแกะรอยวิดีโอแยกตามแต่ละแพลตฟอร์ม
 │       │   ├── factory.go # ตัวเลือกว่าจะใช้ Scraper ตัวไหนตาม URL
