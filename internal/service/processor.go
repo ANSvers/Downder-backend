@@ -16,7 +16,7 @@ func (s *videoService) ProcessVideo(ctx context.Context, inputURL string, opts d
 		return "", fmt.Errorf("input URL is required")
 	}
 
-	// 1. ดึง Metadata เพื่อหาลิงก์สตรีมวิดีโอของจริง (Raw Stream URL)
+	// 1. fetch Metadata to get stream URLs
 	metadata, err := s.FetchMetadata(ctx, inputURL)
 	if err != nil {
 		return "", fmt.Errorf("failed to extract stream url: %w", err)

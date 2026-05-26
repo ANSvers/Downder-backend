@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Config เก็บค่าการตั้งค่าทั้งหมดของระบบ
+// Config : keep all configuration variables in one struct
 type Config struct {
 	Port           string
 	FrontendOrigin string

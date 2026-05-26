@@ -21,13 +21,13 @@ func NewYouTubeScraper() domain.VideoScraper {
 }
 
 func (y *youtubeScraper) Extract(ctx context.Context, videoURL string) (*domain.VideoMetadata, error) {
-	// ดึงข้อมูลวิดีโอ
+	// fetch vieo metadata using the YouTube client
 	video, err := y.client.GetVideoContext(ctx, videoURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch youtube video: %w", err)
 	}
 
-	// จัดรูปแบบความยาววิดีโอ (HH:MM:SS)
+	// format duration to HH:MM:SS or MM:SS
 	durationStr := ""
 	h := int(video.Duration.Hours())
 	m := int(video.Duration.Minutes()) % 60
@@ -38,7 +38,7 @@ func (y *youtubeScraper) Extract(ctx context.Context, videoURL string) (*domain.
 		durationStr = fmt.Sprintf("%02d:%02d", m, s)
 	}
 
-	// ดึงรูปภาพปก (เอาความละเอียดสูงสุดที่ท้ายสุดของ Array)
+	// fetch the highest quality thumbnail available
 	thumbnailURL := ""
 	if len(video.Thumbnails) > 0 {
 		thumbnailURL = video.Thumbnails[len(video.Thumbnails)-1].URL

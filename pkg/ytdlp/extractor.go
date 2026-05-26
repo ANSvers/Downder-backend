@@ -10,11 +10,11 @@ import (
 	"strings"
 )
 
-// ytDlpOutput โครงสร้าง JSON ดิบที่ได้จาก yt-dlp
+// ytDlpOutput
 type ytDlpOutput struct {
 	ID        string  `json:"id"`
 	Title     string  `json:"title"`
-	Duration  float64 `json:"duration"` // เป็นวินาที
+	Duration  float64 `json:"duration"` // seconds
 	Thumbnail string  `json:"thumbnail"`
 	Formats   []struct {
 		FormatID string  `json:"format_id"`
@@ -27,9 +27,9 @@ type ytDlpOutput struct {
 	} `json:"formats"`
 }
 
-// Extract แกะข้อมูลวิดีโอจากแทบทุกแพลตฟอร์มบนโลก
+// Extract : extract all metadata and formats using yt-dlp for every supported platform (YouTube, Facebook, Instagram, TikTok, Twitter, etc.)
 func Extract(ctx context.Context, videoURL string) (*domain.VideoMetadata, error) {
-	// สั่งรัน yt-dlp ดึงข้อมูลแบบ JSON (-J) โดยไม่ดาวน์โหลดวิดีโอ
+	// run yt-dlp with -J to get JSON output
 	cmd := exec.CommandContext(ctx, "yt-dlp", "-J", videoURL)
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -43,7 +43,7 @@ func Extract(ctx context.Context, videoURL string) (*domain.VideoMetadata, error
 		return nil, fmt.Errorf("failed to parse yt-dlp output: %w", err)
 	}
 
-	// แปลงวินาทีเป็น HH:MM:SS
+	// convert seconds to HH:MM:SS
 	totalSeconds := int(data.Duration)
 	h := totalSeconds / 3600
 	m := (totalSeconds % 3600) / 60
@@ -57,7 +57,8 @@ func Extract(ctx context.Context, videoURL string) (*domain.VideoMetadata, error
 
 	var formats []domain.DownloadFormat
 	for _, f := range data.Formats {
-		// คัดกรองเอาเฉพาะไฟล์ที่มีให้โหลดจริง และไม่ใช่ฟอร์แมตขยะ
+
+		// filter out formats that have no URL or are audio-only/video-only with no codec
 		if f.URL == "" || (f.Vcodec == "none" && f.Acodec == "none") {
 			continue
 		}
@@ -74,7 +75,7 @@ func Extract(ctx context.Context, videoURL string) (*domain.VideoMetadata, error
 			fileSizeMB = fmt.Sprintf("%.1f MB", f.Filesize/(1024*1024))
 		}
 
-		// เคลียร์ค่า Extension ถ้ามันมาเป็น 'unknown_video'
+		// clear up extension, if yt-dlp returns "unknown" for some reason, fallback to "mp4"
 		ext := f.Ext
 		if strings.Contains(ext, "unknown") {
 			ext = "mp4" // Fallback
