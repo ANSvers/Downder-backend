@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,15 +29,27 @@ func main() {
 
 	// Platform Layer: สร้าง Scraper สำหรับแต่ละแพลตฟอร์ม
 	ytScraper := scraper.NewYouTubeScraper()
+	tiktokScraper := scraper.NewTikTokScraper()
+	igScraper := scraper.NewInstagramScraper()
+	fbScraper := scraper.NewFacebookScraper()
+	twitterScraper := scraper.NewTwitterScraper()
 
 	// Service Layer: สร้าง Service หลัก แล้วส่ง Scraper เข้าไปให้มันใช้ทำงาน
-	videoSvc := service.NewVideoService(ytScraper)
-
+	videoSvc := service.NewVideoService(ytScraper, tiktokScraper, igScraper, fbScraper, twitterScraper)
 	// Delivery Layer: สร้าง Handler สำหรับรับ HTTP Request แล้วส่ง Service ให้มันไปเรียกใช้
 	videoHandler := deliveryHttp.NewVideoHandler(videoSvc)
 
-	// Gin Router พื้นฐาน
+	// Gin Router Setup
 	r := gin.Default()
+
+	// CORS Middleware
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // Allow frontend orgins
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

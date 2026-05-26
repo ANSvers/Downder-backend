@@ -12,12 +12,29 @@ type videoService struct {
 }
 
 // NewVideoService ผูก Scraper ของแต่ละเว็บเข้ากับ Service
-func NewVideoService(youtubeScraper domain.VideoScraper) domain.VideoService {
+func NewVideoService(
+	youtube domain.VideoScraper,
+	tiktok domain.VideoScraper,
+	ig domain.VideoScraper,
+	fb domain.VideoScraper,
+	twitter domain.VideoScraper,
+) domain.VideoService {
 	return &videoService{
 		scrapers: map[string]domain.VideoScraper{
-			"youtube.com": youtubeScraper,
-			"youtu.be":    youtubeScraper,
-			// ถ้าอนาคตมี tiktok.go ก็เอามาเพิ่มตรงนี้ได้เลย: "tiktok.com": tiktokScraper,
+			// YouTube
+			"youtube.com": youtube,
+			"youtu.be":    youtube,
+			// TikTok
+			"tiktok.com": tiktok,
+			"vt.tiktok":  tiktok,
+			// Instagram
+			"instagram.com": ig,
+			// Facebook
+			"facebook.com": fb,
+			"fb.watch":     fb,
+			// Twitter / X
+			"twitter.com": twitter,
+			"x.com":       twitter,
 		},
 	}
 }

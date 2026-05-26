@@ -3,18 +3,24 @@ FROM golang:1.26-alpine AS builder
 WORKDIR /app
 
 # Copy go.mod and go.sum to download dependencies
-COPY go.mod go.sum ./ 
+COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy all code and build as a binary named main
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/api/main.go
 
+# ==================================================================
+
 # Stage 2: Create a minimal runtime image
 FROM alpine:latest
 
-# Install ffmpeg, ca-certificates, and tzdata for timezone support (Important for proper time handling)
-RUN apk update && apk add --no-cache ffmpeg ca-certificates tzdata
+# Install ffmpeg, ca-certificates, tzdata for timezone support , curl for downloading yt-dlp, and python3 with pip for yt-dlp dependencies
+RUN apk update && apk add --no-cache ffmpeg ca-certificates tzdata curl python3 py3-pip
+
+# 2. Download and install yt-dlp
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
+    chmod a+rx /usr/local/bin/yt-dlp
 
 WORKDIR /root/
 
