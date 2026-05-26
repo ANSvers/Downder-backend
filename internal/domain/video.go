@@ -25,6 +25,7 @@ type TrimOptions struct {
 	EndTime   string `json:"end_time"`   // เวลาจบ เช่น "00:02:00"
 	Format    string `json:"format"`     // ประเภทไฟล์ เช่น "mp4", "mp3"
 	Bitrate   string `json:"bitrate"`    // สำหรับ audio เช่น "320k"
+	Quality   string `json:"quality"`
 }
 
 // ========================================================

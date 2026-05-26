@@ -18,7 +18,7 @@ FROM alpine:latest
 # Install ffmpeg, ca-certificates, tzdata for timezone support , curl for downloading yt-dlp, and python3 with pip for yt-dlp dependencies
 RUN apk update && apk add --no-cache ffmpeg ca-certificates tzdata curl python3 py3-pip
 
-# 2. Download and install yt-dlp
+# Download and install yt-dlp
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
     chmod a+rx /usr/local/bin/yt-dlp
 

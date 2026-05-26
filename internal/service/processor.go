@@ -38,12 +38,31 @@ func (s *videoService) ProcessVideo(ctx context.Context, inputURL string, opts d
 		}
 		// ถ้าเป็นวิดีโอ ก็หาฟอร์แมตที่มีภาพและเสียง
 		if formatReq != "mp3" && f.Quality != "Audio" {
+			// เช็คก่อนว่า User ระบุ Quality มาไหม ถ้าระบุ แล้วไม่ตรง ให้ข้ามไปหาตัวถัดไป
+			if opts.Quality != "" && f.Quality != opts.Quality {
+				continue
+			}
 			streamURL = f.DownloadURL
 			break
 		}
 	}
 
-	// ถ้าไม่ตรงเงื่อนไขเลย ให้เอาลิงก์แรกที่ใช้ได้ในระบบ
+	// 💡 [แก้ไขจุดนี้] Fallback ให้ฉลาดขึ้น: ถ้าหาความละเอียดที่เจาะจงไม่เจอ ให้เลือกประเภทที่ตรงกันแทน
+	if streamURL == "" {
+		for _, f := range metadata.Formats {
+			if formatReq == "mp3" && f.Quality == "Audio" {
+				streamURL = f.DownloadURL
+				break
+			}
+			// ถ้าจะเอาวิดีโอ ให้คว้าเอาวิดีโอตัวแรกที่เจอในระบบ (ดีกว่าหลุดไปได้ไฟล์เสียง)
+			if formatReq != "mp3" && f.Quality != "Audio" {
+				streamURL = f.DownloadURL
+				break
+			}
+		}
+	}
+
+	// Last Resort: ถ้าในระบบไม่มีอะไรตรงเลยจริงๆ ค่อยเอาตัวแรกสุดกันเหนียว
 	if streamURL == "" {
 		streamURL = metadata.Formats[0].DownloadURL
 	}
