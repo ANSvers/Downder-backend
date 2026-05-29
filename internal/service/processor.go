@@ -10,7 +10,25 @@ import (
 	"time"
 )
 
-// ProcessVideo รับคำสั่ง สกัดลิงก์สตรีม และโยนให้ FFmpeg ไปทำงาน
+// format time string "hh:mm:ss" or "mm:ss" to total seconds
+func parseDurationToSeconds(durationStr string) int {
+	parts := strings.Split(durationStr, ":")
+	var h, m, s int
+
+	if len(parts) == 3 {
+		fmt.Sscanf(parts[0], "%d", &h)
+		fmt.Sscanf(parts[1], "%d", &m)
+		fmt.Sscanf(parts[2], "%d", &s)
+		return (h * 3600) + (m * 60) + s
+	} else if len(parts) == 2 {
+		fmt.Sscanf(parts[0], "%d", &m)
+		fmt.Sscanf(parts[1], "%d", &s)
+		return (m * 60) + s
+	}
+	return 0
+}
+
+// ProcessVideo : receive URL, extract stream URL, call FFmpeg to process, return download path
 func (s *videoService) ProcessVideo(ctx context.Context, inputURL string, opts domain.TrimOptions) (string, error) {
 	if inputURL == "" {
 		return "", fmt.Errorf("input URL is required")
@@ -22,11 +40,18 @@ func (s *videoService) ProcessVideo(ctx context.Context, inputURL string, opts d
 		return "", fmt.Errorf("failed to extract stream url: %w", err)
 	}
 
+	// video should not be longer than 2 hours
+	maxAllowedSeconds := 2 * 3600
+	videoSeconds := parseDurationToSeconds(metadata.Duration)
+	if videoSeconds > maxAllowedSeconds {
+		return "", fmt.Errorf("video duration (%s) exceeds the maximum limit of 2 hours", metadata.Duration)
+	}
+
 	if len(metadata.Formats) == 0 {
 		return "", fmt.Errorf("no downloadable formats found")
 	}
 
-	// 2. เลือก Stream URL ที่เหมาะสมกับสิ่งที่ผู้ใช้ต้องการ
+	// 2. select the best stream URL
 	var streamURL string
 	formatReq := strings.ToLower(opts.Format)
 
@@ -47,7 +72,7 @@ func (s *videoService) ProcessVideo(ctx context.Context, inputURL string, opts d
 		}
 	}
 
-	// 💡 [แก้ไขจุดนี้] Fallback ให้ฉลาดขึ้น: ถ้าหาความละเอียดที่เจาะจงไม่เจอ ให้เลือกประเภทที่ตรงกันแทน
+	// Fallback : ถ้าหาความละเอียดที่เจาะจงไม่เจอ ให้เลือกประเภทที่ตรงกันแทน
 	if streamURL == "" {
 		for _, f := range metadata.Formats {
 			if formatReq == "mp3" && f.Quality == "Audio" {
@@ -67,7 +92,7 @@ func (s *videoService) ProcessVideo(ctx context.Context, inputURL string, opts d
 		streamURL = metadata.Formats[0].DownloadURL
 	}
 
-	// 3. กำหนดนามสกุลไฟล์
+	// 3. file format
 	extension := "mp4"
 	if formatReq == "mp3" {
 		extension = "mp3"
@@ -75,7 +100,7 @@ func (s *videoService) ProcessVideo(ctx context.Context, inputURL string, opts d
 		extension = "webm"
 	}
 
-	// 4. สร้างชื่อไฟล์และโฟลเดอร์ปลายทาง
+	// 4. create unique file name
 	timestamp := time.Now().UnixNano()
 	fileName := fmt.Sprintf("media_%d.%s", timestamp, extension)
 
@@ -88,7 +113,7 @@ func (s *videoService) ProcessVideo(ctx context.Context, inputURL string, opts d
 		return "", fmt.Errorf("failed to process media: %w", err)
 	}
 
-	// 6. ส่งกลับ Path สำหรับดาวน์โหลดไฟล์
+	// 6. return download path (relative path for frontend to access)
 	downloadPath := fmt.Sprintf("/api/v1/downloads/%s", fileName)
 	return downloadPath, nil
 }
